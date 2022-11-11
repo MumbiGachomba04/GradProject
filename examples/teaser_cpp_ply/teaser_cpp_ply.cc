@@ -40,11 +40,12 @@ void addNoiseAndOutliers(Eigen::Matrix<double, 3, Eigen::Dynamic>& tgt) {
   }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   // Load the .ply file
   teaser::PLYReader reader;
   teaser::PointCloud src_cloud;
-  auto status = reader.read("./example_data/bun_zipper_res3.ply", src_cloud);
+  char* path = argv[1];
+  auto status = reader.read(path, src_cloud);
   int N = src_cloud.size();
 
   // Convert the point cloud to Eigen

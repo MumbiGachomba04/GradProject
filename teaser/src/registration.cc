@@ -7,7 +7,7 @@
  */
 
 #include "teaser/registration.h"
-
+#include <chrono>
 #include <cmath>
 #include <functional>
 #include <iostream>
@@ -392,6 +392,7 @@ teaser::RobustRegistrationSolver::solve(const teaser::PointCloud& src_cloud,
   Eigen::Matrix<double, 3, Eigen::Dynamic> src(3, correspondences.size());
   Eigen::Matrix<double, 3, Eigen::Dynamic> dst(3, correspondences.size());
   for (size_t i = 0; i < correspondences.size(); ++i) {
+  //????
     auto src_idx = std::get<0>(correspondences[i]);
     auto dst_idx = std::get<1>(correspondences[i]);
     src.col(i) << src_cloud[src_idx].x, src_cloud[src_idx].y, src_cloud[src_idx].z;
@@ -402,7 +403,9 @@ teaser::RobustRegistrationSolver::solve(const teaser::PointCloud& src_cloud,
 
 teaser::RegistrationSolution
 teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dynamic>& src,
-                                        const Eigen::Matrix<double, 3, Eigen::Dynamic>& dst) {
+                                        const Eigen::Matrix<double, 3, Eigen::Dynamic>& dst) 
+{
+                                      
   assert(scale_solver_ && rotation_solver_ && translation_solver_);
 
   // Handle deprecated params
@@ -416,6 +419,7 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
                           "inlier_selection_mode instead.");
     params_.inlier_selection_mode = INLIER_SELECTION_MODE::PMC_HEU;
   }
+
 
   /**
    * Steps to estimate T/R/s
@@ -431,10 +435,18 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
    *
    * Estimate Translation
    */
+  std::chrono::steady_clock::time_point tims_begin = std::chrono::steady_clock::now();
   src_tims_ = computeTIMs(src, &src_tims_map_);
   dst_tims_ = computeTIMs(dst, &dst_tims_map_);
+  std::chrono::steady_clock::time_point tims_end = std::chrono::steady_clock::now();
+  std::cout <<"Time taken by computeTIMS function (s):  "<< std::chrono::duration_cast<std::chrono::microseconds>(tims_end - tims_begin).count() /
+                         1000000.0 << std::endl ;
   TEASER_DEBUG_INFO_MSG("Starting scale solver.");
+  std::chrono::steady_clock::time_point sc_begin = std::chrono::steady_clock::now();
   solveForScale(src_tims_, dst_tims_);
+  std::chrono::steady_clock::time_point sc_end = std::chrono::steady_clock::now();
+  std::cout <<"Time taken by scale solver function (s):  "<< std::chrono::duration_cast<std::chrono::microseconds>(sc_end - sc_begin).count() /
+                         1000000.0 << std::endl ;
   TEASER_DEBUG_INFO_MSG("Scale estimation complete.");
 
   // Calculate Maximum Clique
@@ -444,14 +456,19 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
 
     // Create inlier graph: A graph with (indices of) original measurements as vertices, and edges
     // only when the TIM between two measurements are inliers. Note: src_tims_map_ is the same as
-    // dst_tim_map_
+    // 
+    
+  //-----can parallelise 	
     inlier_graph_.populateVertices(src.cols());
+  //std::chrono::steady_clock::time_point loop1_begin = std::chrono::steady_clock::now();
     for (size_t i = 0; i < scale_inliers_mask_.cols(); ++i) {
       if (scale_inliers_mask_(0, i)) {
         inlier_graph_.addEdge(src_tims_map_(0, i), src_tims_map_(1, i));
       }
     }
-
+  //std::chrono::steady_clock::time_point loop1_end= std::chrono::steady_clock::now();
+  // std::cout << "Time taken by loop 1 (s):  "<< std::chrono::duration_cast<std::chrono::microseconds>(loop1_end - loop1_begin).count() /
+  //                  1000000.0 << std::endl;
     teaser::MaxCliqueSolver::Params clique_params;
 
     if (params_.inlier_selection_mode == INLIER_SELECTION_MODE::PMC_EXACT) {
@@ -464,8 +481,12 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
     clique_params.time_limit = params_.max_clique_time_limit;
     clique_params.kcore_heuristic_threshold = params_.kcore_heuristic_threshold;
 
-    teaser::MaxCliqueSolver clique_solver(clique_params);
+  teaser::MaxCliqueSolver clique_solver(clique_params);
+  std::chrono::steady_clock::time_point clique_begin = std::chrono::steady_clock::now();
     max_clique_ = clique_solver.findMaxClique(inlier_graph_);
+  std::chrono::steady_clock::time_point clique_end = std::chrono::steady_clock::now();
+  std::cout << "Time taken by clique solver (s):  "<< std::chrono::duration_cast<std::chrono::microseconds>(clique_end - clique_begin).count() /
+                  1000000.0 << std::endl;
     std::sort(max_clique_.begin(), max_clique_.end());
     TEASER_DEBUG_INFO_MSG("Max Clique of scale estimation inliers: ");
 #ifndef NDEBUG
@@ -481,19 +502,28 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
   } else {
     // not using clique filtering is equivalent to saying all measurements are in the max clique
     max_clique_.reserve(src.cols());
+  //std::chrono::steady_clock::time_point loop2_begin = std::chrono::steady_clock::now();
     for (size_t i = 0; i < src.cols(); ++i) {
       max_clique_.push_back(i);
     }
+  //std::chrono::steady_clock::time_point loop2_end= std::chrono::steady_clock::now();
+  // std::cout << "Time taken by loop 2 (s):  "<< std::chrono::duration_cast<std::chrono::microseconds>(loop2_end - loop2_begin).count() /
+  //                 1000000.0 << std::endl;
   }
 
   // Calculate new measurements & TIMs based on max clique inliers
   if (params_.rotation_tim_graph == INLIER_GRAPH_FORMULATION::CHAIN) {
     // chain graph
     TEASER_DEBUG_INFO_MSG("Using chain graph for GNC rotation.");
+    std::chrono::steady_clock::time_point resize_begin= std::chrono::steady_clock::now();
     pruned_src_tims_.resize(3, max_clique_.size());
     pruned_dst_tims_.resize(3, max_clique_.size());
     src_tims_map_rotation_.resize(2, max_clique_.size());
     dst_tims_map_rotation_.resize(2, max_clique_.size());
+    std::chrono::steady_clock::time_point resize_end= std::chrono::steady_clock::now();
+    std::cout << "Time taken by resize function (s):  "<< std::chrono::duration_cast<std::chrono::microseconds>(resize_end - resize_begin).count() /
+                  1000000.0 << std::endl;
+  //std::chrono::steady_clock::time_point loop3_begin = std::chrono::steady_clock::now();  
     for (size_t i = 0; i < max_clique_.size(); ++i) {
       const auto& root = max_clique_[i];
       int leaf;
@@ -511,16 +541,24 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
       src_tims_map_rotation_(0,i) = leaf;
       src_tims_map_rotation_(1,i) = root;
     }
+  //std::chrono::steady_clock::time_point loop3_end= std::chrono::steady_clock::now();
+  // std::cout << "Time taken by loop 3 (s):  "<< std::chrono::duration_cast<std::chrono::microseconds>(loop3_end - loop3_begin).count() /
+  //                  1000000.0 << std::endl;
   } else {
     // complete graph
     TEASER_DEBUG_INFO_MSG("Using complete graph for GNC rotation.");
     // select the inlier measurements with max clique
     Eigen::Matrix<double, 3, Eigen::Dynamic> src_inliers(3, max_clique_.size());
     Eigen::Matrix<double, 3, Eigen::Dynamic> dst_inliers(3, max_clique_.size());
+  //std::chrono::steady_clock::time_point loop4_begin = std::chrono::steady_clock::now();
     for (size_t i = 0; i < max_clique_.size(); ++i) {
+    //------can parallelise
       src_inliers.col(i) = src.col(max_clique_[i]);
       dst_inliers.col(i) = dst.col(max_clique_[i]);
     }
+  //std::chrono::steady_clock::time_point loop4_end = std::chrono::steady_clock::now();
+  // std::cout << "Time taken by loop 4 (s):  "<< std::chrono::duration_cast<std::chrono::microseconds>(loop4_end - loop4_begin).count() /
+  //                  1000000.0 << std::endl;
     // construct the TIMs
     pruned_dst_tims_ = computeTIMs(dst_inliers, &dst_tims_map_rotation_);
     pruned_src_tims_ = computeTIMs(src_inliers, &src_tims_map_rotation_);
@@ -536,37 +574,56 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
   params.noise_bound *= (2 / solution_.scale);
   rotation_solver_->setParams(params);
 
+
+
   // Solve for rotation
   TEASER_DEBUG_INFO_MSG("Starting rotation solver.");
+  std::chrono::steady_clock::time_point rot_begin = std::chrono::steady_clock::now();
   solveForRotation(pruned_src_tims_, pruned_dst_tims_);
+  std::chrono::steady_clock::time_point rot_end = std::chrono::steady_clock::now();
+  std::cout <<"Time taken by rotation solver function (s):  "<< std::chrono::duration_cast<std::chrono::microseconds>(rot_end - rot_begin).count() /
+                   1000000.0 << std::endl;
   TEASER_DEBUG_INFO_MSG("Rotation estimation complete.");
 
+
+ //std::chrono::steady_clock::time_point loop5_begin = std::chrono::steady_clock::now(); 
   // Save indices of inlier TIMs from GNC rotation estimation
   for (size_t i = 0; i < rotation_inliers_mask_.cols(); ++i) {
-    if (rotation_inliers_mask_[i]) {
+    if (rotation_inliers_mask_[i]) { //cannot parallelise
       rotation_inliers_.emplace_back(i);
     }
   }
+  //std::chrono::steady_clock::time_point loop5_end = std::chrono::steady_clock::now();
+  // std::cout << "Time taken by loop 5 (s):  "<< std::chrono::duration_cast<std::chrono::microseconds>(loop5_end - loop5_begin).count() /
+  //                  1000000.0 << std::endl;
   Eigen::Matrix<double, 3, Eigen::Dynamic> rotation_pruned_src(3, max_clique_.size());
   Eigen::Matrix<double, 3, Eigen::Dynamic> rotation_pruned_dst(3, max_clique_.size());
+  //std::chrono::steady_clock::time_point loop6_begin = std::chrono::steady_clock::now();
   for (size_t i = 0; i < max_clique_.size(); ++i) {
+    //can parallelise
     rotation_pruned_src.col(i) = src.col(max_clique_[i]);
     rotation_pruned_dst.col(i) = dst.col(max_clique_[i]);
   }
-
-  // Solve for translation
+ //std::chrono::steady_clock::time_point loop6_end = std::chrono::steady_clock::now();
+//  std::cout << "Time taken by loop 6 (s):  "<< std::chrono::duration_cast<std::chrono::microseconds>(loop6_end - loop6_begin).count() /
+//                    1000000.0 << std::endl;
+  std::chrono::steady_clock::time_point tran_begin = std::chrono::steady_clock::now();
   TEASER_DEBUG_INFO_MSG("Starting translation solver.");
   solveForTranslation(solution_.scale * solution_.rotation * rotation_pruned_src,
-                      rotation_pruned_dst);
+                           rotation_pruned_dst);
   TEASER_DEBUG_INFO_MSG("Translation estimation complete.");
+
+  std::chrono::steady_clock::time_point tran_end = std::chrono::steady_clock::now();
+  std::cout << "Time taken for translation solver function (s):  "<< std::chrono::duration_cast<std::chrono::microseconds>(tran_end - tran_begin).count() /
+                   1000000.0 << std::endl;
 
   // Find the final inliers
   translation_inliers_ = utils::findNonzero<bool>(translation_inliers_mask_);
 
   // Update validity flag
   solution_.valid = true;
-
   return solution_;
+ 
 }
 
 double teaser::RobustRegistrationSolver::solveForScale(

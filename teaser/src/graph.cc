@@ -111,6 +111,7 @@ vector<int> teaser::MaxCliqueSolver::findMaxClique(teaser::Graph graph) {
     // R. A. Rossi, D. F. Gleich, and A. H. Gebremedhin, “Parallel Maximum Clique Algorithms with
     // Applications to Network Analysis,” SIAM J. Sci. Comput., vol. 37, no. 5, pp. C589–C616, Jan.
     // 2015.
+    
     if (G.num_vertices() < in.adj_limit) {
       G.create_adj();
       pmc::pmcx_maxclique finder(G, in);
