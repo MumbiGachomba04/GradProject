@@ -60,15 +60,15 @@ include CMakeFiles/teaser_cpp_ply.dir/flags.make
 CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.o: CMakeFiles/teaser_cpp_ply.dir/flags.make
 CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.o: ../teaser_cpp_ply.cc
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mumbi/TEASER-plusplus/examples/teaser_cpp_ply/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.o -c /home/mumbi/TEASER-plusplus/examples/teaser_cpp_ply/teaser_cpp_ply.cc
+	/usr/bin/mpic++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.o -c /home/mumbi/TEASER-plusplus/examples/teaser_cpp_ply/teaser_cpp_ply.cc
 
 CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mumbi/TEASER-plusplus/examples/teaser_cpp_ply/teaser_cpp_ply.cc > CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.i
+	/usr/bin/mpic++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mumbi/TEASER-plusplus/examples/teaser_cpp_ply/teaser_cpp_ply.cc > CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.i
 
 CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mumbi/TEASER-plusplus/examples/teaser_cpp_ply/teaser_cpp_ply.cc -o CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.s
+	/usr/bin/mpic++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mumbi/TEASER-plusplus/examples/teaser_cpp_ply/teaser_cpp_ply.cc -o CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.s
 
 # Object files for target teaser_cpp_ply
 teaser_cpp_ply_OBJECTS = \

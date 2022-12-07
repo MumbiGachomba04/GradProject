@@ -13,6 +13,8 @@ iostream
 -
 random
 -
+mpi.h
+-
 Eigen/Core
 -
 teaser/ply_io.h

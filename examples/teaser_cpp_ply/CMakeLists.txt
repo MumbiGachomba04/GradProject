@@ -2,15 +2,21 @@ cmake_minimum_required(VERSION 3.10)
 project(teaser_cpp_ply)
 
 set(CMAKE_CXX_STANDARD 14)
+#set(CMAKE_CPP_COMPILER mpic++)
 
 find_package(Eigen3 REQUIRED)
 find_package(teaserpp REQUIRED)
 
+
 # Change this line to include your own executable file
 add_executable(teaser_cpp_ply teaser_cpp_ply.cc)
 
+# MPI
+find_package(MPI REQUIRED)
+
 # Link to teaserpp & Eigen3
-target_link_libraries(teaser_cpp_ply Eigen3::Eigen teaserpp::teaser_registration teaserpp::teaser_io)
+target_link_libraries(teaser_cpp_ply PUBLIC MPI::MPI_CXX Eigen3::Eigen teaserpp::teaser_registration teaserpp::teaser_io)
+
 
 # Copy the data files to build directory
 file(COPY ../example_data/

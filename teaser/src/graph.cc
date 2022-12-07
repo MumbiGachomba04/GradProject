@@ -8,6 +8,7 @@
 
 #include "teaser/graph.h"
 #include "pmc/pmc.h"
+//#include <mpi.h>
 
 vector<int> teaser::MaxCliqueSolver::findMaxClique(teaser::Graph graph) {
 
@@ -20,6 +21,11 @@ vector<int> teaser::MaxCliqueSolver::findMaxClique(teaser::Graph graph) {
   vector<int> edges;
   vector<long long> vertices;
   vertices.push_back(edges.size());
+
+
+  // int numproc,rank;
+  // MPI_Comm_size(MPI_COMM_WORLD,&numproc);
+  // MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 
   const auto all_vertices = graph.getVertices();
   for (const auto& i : all_vertices) {
@@ -123,4 +129,5 @@ vector<int> teaser::MaxCliqueSolver::findMaxClique(teaser::Graph graph) {
   }
 
   return C;
+
 }

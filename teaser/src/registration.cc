@@ -458,7 +458,7 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
     // only when the TIM between two measurements are inliers. Note: src_tims_map_ is the same as
     // 
     
-  //-----can parallelise 	
+   	
     inlier_graph_.populateVertices(src.cols());
   //std::chrono::steady_clock::time_point loop1_begin = std::chrono::steady_clock::now();
     for (size_t i = 0; i < scale_inliers_mask_.cols(); ++i) {
@@ -588,6 +588,7 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
 
  //std::chrono::steady_clock::time_point loop5_begin = std::chrono::steady_clock::now(); 
   // Save indices of inlier TIMs from GNC rotation estimation
+  //TODO : check if this loop can be parallelised
   for (size_t i = 0; i < rotation_inliers_mask_.cols(); ++i) {
     if (rotation_inliers_mask_[i]) { //cannot parallelise
       rotation_inliers_.emplace_back(i);

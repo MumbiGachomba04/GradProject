@@ -2,6 +2,7 @@
 #include <chrono>
 #include <iostream>
 #include <random>
+#include <mpi.h>
 
 #include <Eigen/Core>
 
@@ -41,7 +42,12 @@ void addNoiseAndOutliers(Eigen::Matrix<double, 3, Eigen::Dynamic>& tgt) {
 }
 
 int main(int argc, char *argv[]) {
-  // Load the .ply file
+  // Load the .ply filemax
+  int numproc,rank;
+  MPI_Init(&argc,&argv);
+  MPI_Comm_size(MPI_COMM_WORLD,&numproc);
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+
   teaser::PLYReader reader;
   teaser::PointCloud src_cloud;
   char* path = argv[1];
@@ -53,7 +59,6 @@ int main(int argc, char *argv[]) {
   for (size_t i = 0; i < N; ++i) {
     src.col(i) << src_cloud[i].x, src_cloud[i].y, src_cloud[i].z;
   }
-
   // Homogeneous coordinates
   Eigen::Matrix<double, 4, Eigen::Dynamic> src_h;
   src_h.resize(4, src.cols());
@@ -119,4 +124,5 @@ int main(int argc, char *argv[]) {
             << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() /
                    1000000.0
             << std::endl;
+  MPI_Finalize();
 }
