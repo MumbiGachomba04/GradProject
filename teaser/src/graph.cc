@@ -8,7 +8,8 @@
 
 #include "teaser/graph.h"
 #include "pmc/pmc.h"
-//#include <mpi.h>
+#include <mpi.h>
+//#include <boost/mpi/datatype.hpp>
 
 vector<int> teaser::MaxCliqueSolver::findMaxClique(teaser::Graph graph) {
 
@@ -19,20 +20,19 @@ vector<int> teaser::MaxCliqueSolver::findMaxClique(teaser::Graph graph) {
 
   // Create a PMC graph from the TEASER graph
   vector<int> edges;
-  vector<long long> vertices;
-  vertices.push_back(edges.size());
+  vector<long long> vertices;// row ptr
 
+  vertices.push_back(edges.size()); // TODO:confirm edges.size() at this point is zero
 
-  // int numproc,rank;
-  // MPI_Comm_size(MPI_COMM_WORLD,&numproc);
-  // MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-
+  // can't be parallellised because  vertices are ordered by weight : refer to build/pmc-src/README.md
   const auto all_vertices = graph.getVertices();
   for (const auto& i : all_vertices) {
     const auto& c_edges = graph.getEdges(i);
     edges.insert(edges.end(), c_edges.begin(), c_edges.end());
-    vertices.push_back(edges.size());
+    vertices.push_back(edges.size()); 
   }
+
+  // TODO::GATHER local vertices
 
   // Use PMC to calculate
   pmc::pmc_graph G(vertices, edges);
@@ -41,12 +41,12 @@ vector<int> teaser::MaxCliqueSolver::findMaxClique(teaser::Graph graph) {
   // TODO: Incorporate this to the constructor
   pmc::input in;
   in.algorithm = 0;
-  in.threads = 12;
+  in.threads = 8;
   in.experiment = 0;
   in.lb = 0;
   in.ub = 0;
   in.param_ub = 0;
-  in.adj_limit = 20000;
+  in.adj_limit = 200000; 
   in.time_limit = params_.time_limit;
   in.remove_time = 4;
   in.graph_stats = false;
@@ -60,12 +60,15 @@ vector<int> teaser::MaxCliqueSolver::findMaxClique(teaser::Graph graph) {
   // vector to represent max clique
   vector<int> C;
 
-  // upper-bound of max clique
-  G.compute_cores();
-  auto max_core = G.get_max_core();
+    // upper-bound of max clique
+    G.compute_cores();
+    auto max_core = G.get_max_core();
+    //auto mdt = boost::mpi::get_mpi_datatype(max_core);
+    TEASER_DEBUG_INFO_MSG("Max core number: " << max_core);
+    TEASER_DEBUG_INFO_MSG("Num vertices: " << vertices.size());
+    //}
+    //MPI_Bcast(&max_core,1,mdt,0,MPI_COMM_WORLD);
 
-  TEASER_DEBUG_INFO_MSG("Max core number: " << max_core);
-  TEASER_DEBUG_INFO_MSG("Num vertices: " << vertices.size());
 
   // check for k-core heuristic threshold
   // check whether threshold equals 1 to short circuit the comparison

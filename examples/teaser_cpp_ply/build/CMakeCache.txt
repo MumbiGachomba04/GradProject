@@ -230,7 +230,7 @@ MPIEXEC_POSTFLAGS:STRING=
 MPIEXEC_PREFLAGS:STRING=
 
 //MPI CXX additional include directories
-MPI_CXX_ADDITIONAL_INCLUDE_DIRS:STRING=
+MPI_CXX_ADDITIONAL_INCLUDE_DIRS:STRING=/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi;/usr/lib/x86_64-linux-gnu/openmpi/include
 
 //MPI compiler for CXX
 MPI_CXX_COMPILER:FILEPATH=/usr/bin/mpic++
@@ -238,11 +238,14 @@ MPI_CXX_COMPILER:FILEPATH=/usr/bin/mpic++
 //MPI CXX compilation definitions
 MPI_CXX_COMPILE_DEFINITIONS:STRING=
 
-//MPI CXX compilation flags
-MPI_CXX_COMPILE_OPTIONS:STRING=
+//MPI CXX compilation options
+MPI_CXX_COMPILE_OPTIONS:STRING=-pthread
+
+//MPI CXX libraries to link against
+MPI_CXX_LIB_NAMES:STRING=mpi_cxx;mpi
 
 //MPI CXX linker flags
-MPI_CXX_LINK_FLAGS:STRING=
+MPI_CXX_LINK_FLAGS:STRING=-pthread
 
 //If true, the MPI-2 C++ bindings are disabled using definitions.
 MPI_CXX_SKIP_MPICXX:BOOL=FALSE
@@ -270,6 +273,9 @@ MPI_C_LINK_FLAGS:STRING=-pthread
 
 //Location of the mpi library for MPI
 MPI_mpi_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
+
+//Location of the mpi_cxx library for MPI
+MPI_mpi_cxx_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so
 
 //CXX compiler flags for OpenMP parallelization
 OpenMP_CXX_FLAGS:STRING=-fopenmp
@@ -476,6 +482,8 @@ MPI_CXX_COMPILER-ADVANCED:INTERNAL=1
 MPI_CXX_COMPILE_DEFINITIONS-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: MPI_CXX_COMPILE_OPTIONS
 MPI_CXX_COMPILE_OPTIONS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_CXX_LIB_NAMES
+MPI_CXX_LIB_NAMES-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: MPI_CXX_LINK_FLAGS
 MPI_CXX_LINK_FLAGS-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: MPI_CXX_SKIP_MPICXX
@@ -502,6 +510,8 @@ MPI_RESULT_CXX_test_mpi_normal:INTERNAL=TRUE
 MPI_RESULT_C_test_mpi_normal:INTERNAL=TRUE
 //ADVANCED property for variable: MPI_mpi_LIBRARY
 MPI_mpi_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_mpi_cxx_LIBRARY
+MPI_mpi_cxx_LIBRARY-ADVANCED:INTERNAL=1
 //Result of TRY_COMPILE
 OpenMP_COMPILE_RESULT_CXX_fopenmp:INTERNAL=TRUE
 //Result of TRY_COMPILE

@@ -77,6 +77,7 @@ if (BUILD_TEASER_FPFH)
     add_library(teaserpp::teaser_features ALIAS teaser_features)
 endif ()
 
+
 # march=native flag
 if (BUILD_WITH_MARCH_NATIVE)
     message(STATUS "-march=native flag enabled.")

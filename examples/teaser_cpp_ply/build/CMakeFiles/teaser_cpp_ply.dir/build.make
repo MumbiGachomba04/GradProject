@@ -81,6 +81,8 @@ teaser_cpp_ply: CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.o
 teaser_cpp_ply: CMakeFiles/teaser_cpp_ply.dir/build.make
 teaser_cpp_ply: /usr/local/lib/libteaser_registration.so
 teaser_cpp_ply: /usr/local/lib/libteaser_io.so
+teaser_cpp_ply: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so
+teaser_cpp_ply: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
 teaser_cpp_ply: CMakeFiles/teaser_cpp_ply.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mumbi/TEASER-plusplus/examples/teaser_cpp_ply/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable teaser_cpp_ply"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/teaser_cpp_ply.dir/link.txt --verbose=$(VERBOSE)

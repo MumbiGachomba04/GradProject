@@ -1,1 +1,1 @@
-/usr/bin/mpic++     CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.o  -o teaser_cpp_ply  -Wl,-rpath,/usr/local/lib /usr/local/lib/libteaser_registration.so /usr/local/lib/libteaser_io.so 
+/usr/bin/mpic++    -pthread CMakeFiles/teaser_cpp_ply.dir/teaser_cpp_ply.cc.o  -o teaser_cpp_ply  -Wl,-rpath,/usr/local/lib /usr/local/lib/libteaser_registration.so /usr/local/lib/libteaser_io.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so 
