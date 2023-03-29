@@ -16,6 +16,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/lib/cmake/eigen3/Eigen3ConfigVersion.cmake"
   "/usr/lib/cmake/eigen3/Eigen3Targets.cmake"
   "/usr/local/lib/cmake/teaserpp/teaserppConfig.cmake"
+  "/usr/local/lib/cmake/teaserpp/teaserppTargets-debug.cmake"
   "/usr/local/lib/cmake/teaserpp/teaserppTargets-release.cmake"
   "/usr/local/lib/cmake/teaserpp/teaserppTargets.cmake"
   "/usr/share/cmake-3.16/Modules/CMakeCInformation.cmake"
